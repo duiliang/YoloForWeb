@@ -25,13 +25,24 @@ class MetricsStorage(object):
 class MySQLMetricsStorage(MetricsStorage):
     """使用 MySQL 存储训练指标的实现。"""
 
-    def __init__(self, host, port, user, password, database, table="metrics"):
+    def __init__(
+        self,
+        host=None,
+        port=3306,
+        user="root",
+        password="",
+        database="yolo",
+        table="metrics",
+        unix_socket=None,
+    ):
+        # 保存连接参数
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.database = database
         self.table = table
+        self.unix_socket = unix_socket
         self._conn = None
         self._lock = threading.Lock()
 
@@ -50,6 +61,7 @@ class MySQLMetricsStorage(MetricsStorage):
                     user=self.user,
                     password=self.password,
                     database=self.database,
+                    unix_socket=self.unix_socket,
                     charset="utf8mb4",
                 )
             except Exception:
@@ -61,6 +73,7 @@ class MySQLMetricsStorage(MetricsStorage):
                         user=self.user,
                         password=self.password,
                         database=self.database,
+                        unix_socket=self.unix_socket,
                         charset="utf8mb4",
                     )
                 except Exception as e:
