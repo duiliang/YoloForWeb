@@ -16,7 +16,7 @@ from ultralytics import YOLO
 
 from .storage.base import IStorage
 from .storage.mysql import MySQLRunStateStorage
-from .metrics import MetricsStorage
+from .metrics import MySQLMetricsStorage
 
 
 class YoloTaskManager(object):
@@ -42,7 +42,7 @@ class YoloTaskManager(object):
             max_workers = max(2, global_limit * 2)
         self.pool = ThreadPoolExecutor(max_workers=max_workers)
         # MySQL 持久化
-        self.metrics_db = MetricsStorage(**mysql_cfg)
+        self.metrics_db = MySQLMetricsStorage(**mysql_cfg)
         self.run_db = MySQLRunStateStorage(**mysql_cfg)
         # 从数据库加载历史 run 状态
         self._runs = self.run_db.load_all() or {}
@@ -152,7 +152,7 @@ class YoloTaskManager(object):
                 labels=getattr(results, "names", None),
             )
             # 更新状态
-state["final_model_path"] = str(saved_path)
+            state["final_model_path"] = str(saved_path)
             # 持久化到 MySQL
             self.run_db.save(
                 run_id,
